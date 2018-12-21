@@ -60,9 +60,6 @@ public class UseCamera {
             });
     }
 
-    private void useCamera(final int type) {
-
-    }
     /**
      * ------------------------------------------------------------------------------------
      */

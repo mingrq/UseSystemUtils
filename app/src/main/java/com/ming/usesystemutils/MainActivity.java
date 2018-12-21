@@ -12,16 +12,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.ming.circleimageview_lib.CircleImageView;
-
-import java.util.Date;
 
 import ming.com.usesystemutils_lib.UseCamera;
 
 public class MainActivity extends AppCompatActivity {
 
     private UseCamera useCamera;
-    private CircleImageView circleImageView;
+    private ImageView circleImageView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
