@@ -28,17 +28,17 @@ public class MainActivity extends AppCompatActivity {
         useCamera = new UseCamera(MainActivity.this, new UseCamera.PhotographCallBack() {
             @Override
             public void NoPermission(int requestCode, String[] permissions) {
-                Toast.makeText(MainActivity.this,"没有权限",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "没有权限", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void Failure(Intent data) {
-                Toast.makeText(MainActivity.this,"失败",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "失败", Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void Cancel() {
-                Toast.makeText(MainActivity.this,"取消",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "取消", Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -49,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         circleImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                useCamera.Photograph();
+
+                useCamera.Photograph(System.currentTimeMillis() + ".jpg");
             }
         });
     }
