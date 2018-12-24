@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                useCamera.Photograph(Environment.getExternalStorageDirectory()+"/"+System.currentTimeMillis() + ".jpg");
-                //useCamera.Photograph(System.currentTimeMillis() + ".jpg");
+                //useCamera.Photograph(Environment.getExternalStorageDirectory()+"/"+System.currentTimeMillis() + ".jpg");
+                useCamera.Photograph();
 
             }
         });
