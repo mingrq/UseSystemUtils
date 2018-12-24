@@ -67,7 +67,12 @@ public class UseCamera {
             public void onPermissionAllow(int requestCode, String[] permissions) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (type == PHOTOGRAPHSAVE) {
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.N){
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    }else {
+                        intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(imagePath));
+                    }
+
                 }
                 activity.startActivityForResult(intent, AccessPermissionUtil.PERMISSIONS_REQUEST_GROUP_CODE);
             }
