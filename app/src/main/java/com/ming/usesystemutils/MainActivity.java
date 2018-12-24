@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void Failure(Intent data) {
+            public void Failure() {
                 Toast.makeText(MainActivity.this, "失败", Toast.LENGTH_SHORT).show();
             }
 
@@ -50,7 +50,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                useCamera.Photograph(System.currentTimeMillis() + ".jpg");
+                useCamera.Photograph(Environment.getExternalStorageDirectory()+"/"+System.currentTimeMillis() + ".jpg");
+                //useCamera.Photograph(System.currentTimeMillis() + ".jpg");
+
             }
         });
     }

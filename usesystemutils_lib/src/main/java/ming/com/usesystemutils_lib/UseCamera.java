@@ -10,11 +10,15 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.util.Log;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import static android.app.Activity.RESULT_CANCELED;
@@ -32,12 +36,13 @@ public class UseCamera {
 
     private final int PHOTOGRAPH = 0;//拍照并返回照片
     private final int PHOTOGRAPHSAVE = 1;//拍照并将照片保存到本地
-    private File image;
 
     private AccessPermissionUtil permissionUtil;
     private PhotographCallBack callBack;
     private Activity activity;
-    private String imageName;//照片存储路径
+    private String imagePath;//照片存储路径
+    private Uri imageUri;//照片存储路径
+    int type;//获取图片方式
 
     public UseCamera(Activity activity, PhotographCallBack callBack) {
         this.callBack = callBack;
@@ -49,13 +54,10 @@ public class UseCamera {
      *
      * @return
      */
-    private void startPhotograph(final int type) {
+    private void startPhotograph() {
         //检查是否有使用系统相机的权限
         permissionUtil = new AccessPermissionUtil(activity);
         permissionUtil.checkPermissions(new AccessPermissionUtil.RequestPerssionCallBack() {
-
-
-
             @Override
             public void onPermissionDenied(int requestCode, String[] permissions) {
                 callBack.NoPermission(requestCode, permissions);
@@ -65,27 +67,11 @@ public class UseCamera {
             public void onPermissionAllow(int requestCode, String[] permissions) {
                 Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                 if (type == PHOTOGRAPHSAVE) {
-                    File file = null;
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.FROYO) {
-                        file = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                    }
-                    if (file.exists()) {
-                        file.mkdirs();
-                    }
-                    image = new File(file.getAbsolutePath(),imageName);
-                    if (image.exists()) {
-                        try {
-                            image.createNewFile();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                    intent.putExtra(MediaStore.EXTRA_OUTPUT, Utils.getIntentUri(activity,Uri.fromFile(image)));
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
                 }
                 activity.startActivityForResult(intent, AccessPermissionUtil.PERMISSIONS_REQUEST_GROUP_CODE);
             }
-        }, Manifest.permission.CAMERA);
+        }, Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE);
     }
 
     /**
@@ -99,21 +85,23 @@ public class UseCamera {
      * @return 拍照后获取的位图
      */
     public void Photograph() {
-        startPhotograph(PHOTOGRAPH);
+        type = PHOTOGRAPH;
+        startPhotograph();
     }
 
 
     /**
      * 拍照并存储到本地
      *
-     * @param imageName 存储地址
+     * @param imagePath 存储地址
      * @return 是否保存成功
      */
-    public void Photograph(String imageName) {
-        this.imageName = imageName;
-        startPhotograph(PHOTOGRAPHSAVE);
+    public void Photograph(String imagePath) {
+        this.imageUri = Utils.getIntentUri(activity, Uri.parse(imagePath));
+        this.imagePath = imagePath;
+        type = PHOTOGRAPHSAVE;
+        startPhotograph();
     }
-
 
     /**
      * 设置权限检测回调
@@ -126,7 +114,6 @@ public class UseCamera {
         permissionUtil.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-
     /**
      * 使用系统相机获取照片的回执
      *
@@ -136,17 +123,20 @@ public class UseCamera {
      */
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         if (requestCode == AccessPermissionUtil.PERMISSIONS_REQUEST_GROUP_CODE) {
-           /* if (resultCode == RESULT_OK) {
-                Bundle bundle = data.getExtras();
-                Bitmap bitmap = (Bitmap) bundle.get("data");
+            if (resultCode == RESULT_OK) {
+                Bitmap bitmap = null;
+                if (type == PHOTOGRAPH) {
+                    Bundle bundle = data.getExtras();
+                    bitmap = (Bitmap) bundle.get("data");
+                } else if (type == PHOTOGRAPHSAVE) {
+                    bitmap = BitmapFactory.decodeFile(imagePath);
+                }
                 callBack.Success(bitmap);
             } else if (resultCode == RESULT_CANCELED) {
                 callBack.Cancel();
             } else {
-                callBack.Failure(data);
-            }*/
-            Bitmap b = BitmapFactory.decodeFile(image.getAbsolutePath());
-            callBack.Success(b);
+                callBack.Failure();
+            }
         }
     }
 
@@ -162,7 +152,7 @@ public class UseCamera {
         /**
          * 获取照片失败时操作
          */
-        void Failure(Intent data);
+        void Failure();
 
         /**
          * 取消拍照
